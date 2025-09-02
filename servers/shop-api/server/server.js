@@ -19,7 +19,7 @@ await connectDB()
 await connectCloudinary()
 
 // Allow multiple origins
-const allowedOrigins = ['http://localhost:5173', 'https://petcare-suite-server.vercel.app']
+const allowedOrigins = ['http://localhost:5173', 'https://petcare-suite-client-weld.vercel.app/']
 // CORS options that also allow any *.vercel.app preview
 const corsOptions = {
   origin(origin, cb) {
