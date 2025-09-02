@@ -1,69 +1,61 @@
+// AppContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+const API_BASE = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, ""); // strip trailing /
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+axios.defaults.baseURL = API_BASE;
 
 export const AppContext = createContext();
 
-export const AppContextProvider = ({children})=>{
+export const AppContextProvider = ({ children }) => {
+  const currency = import.meta.env.VITE_CURRENCY;
+  const navigate = useNavigate();
 
-    const currency = import.meta.env.VITE_CURRENCY;
+  const [user, setUser] = useState(null);
+  const [isSeller, setIsSeller] = useState(false);
+  const [showUserLogin, setShowUserLogin] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState({});
+  const [searchQuery, setSearchQuery] = useState({});
 
-    const navigate = useNavigate();
-    const [user, setUser] = useState(null)
-    const [isSeller, setIsSeller] = useState(false)
-    const [showUserLogin, setShowUserLogin] = useState(false)
-    const [products, setProducts] = useState([])
-
-    const [cartItems, setCartItems] = useState({})
-    const [searchQuery, setSearchQuery] = useState({})
-
-  // Fetch Seller Status
-  const fetchSeller = async ()=>{
+  // Seller status
+  const fetchSeller = async () => {
     try {
-        const {data} = await axios.get('/api/seller/is-auth');
-        if(data.success){
-            setIsSeller(true)
-        }else{
-            setIsSeller(false)
-        }
-    } catch (error) {
-        setIsSeller(false)
+      const { data } = await axios.get("/api/seller/is-auth");
+      setIsSeller(!!data?.success);
+    } catch {
+      setIsSeller(false);
     }
-  }
+  };
 
-    // Fetch User Auth Status , User Data and Cart Items
-const fetchUser = async ()=>{
+  // User auth + cart
+  const fetchUser = async () => {
     try {
-        const {data} = await axios.get('api/user/is-auth');
-        if (data.success){
-            setUser(data.user)
-            setCartItems(data.user.cartItems)
-        }
-    } catch (error) {
-        setUser(null)
+      const { data } = await axios.get("/api/user/is-auth"); // <-- fixed leading slash
+      if (data?.success) {
+        setUser(data.user);
+        setCartItems(data.user.cartItems);
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
     }
-}
+  };
 
-
-
-    // Fetch All Products
-    const fetchProducts = async ()=>{
-        try {
-            const { data } = await axios.get('/api/product/list')
-            if(data.success){
-                setProducts(data.products)
-            }else{
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
+  // All products
+  const fetchProducts = async () => {
+    try {
+      const { data } = await axios.get("/api/product/list");
+      if (data?.success) setProducts(data.products);
+      else toast.error(data?.message || "Failed to load products");
+    } catch (err) {
+      toast.error(err.message);
     }
+  };
 
 // Add Product to Cart
 const addToCart = (itemId)=>{
