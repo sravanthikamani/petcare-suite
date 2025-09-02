@@ -1,0 +1,19 @@
+{
+  "name": "petcare-suite",
+  "private": true,
+  "workspaces": [
+    "client",
+    "vet-admin/admin",
+    "vet-frontend/frontend",
+    "servers/vet-api/backend",
+    "servers/shop-api/server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n vet-api,shop-api,client,admin,vet-frontend -c auto \"npm:server -w servers/vet-api/backend\" \"npm:server -w servers/shop-api/server\" \"npm:dev -w client\" \"npm:dev -w vet-admin/admin\" \"npm:dev -w vet-frontend\"",
+    "start": "npm run start -w servers/vet-api/backend",
+    "build": "npm run build -w client && npm run build -w vet-admin/admin && npm run build -w vet-frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
