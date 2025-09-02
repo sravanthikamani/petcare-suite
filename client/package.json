@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@tailwindcss/vite": "^4.0.16",
     "@tailwindcss/oxide": "^4.0.16",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
