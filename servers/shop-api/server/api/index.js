@@ -1,3 +1,7 @@
-// servers/shop-api/server/api/index.js
 import app from '../server.js'
-export default app
+import { createServer } from 'http'
+
+// Wrap Express in a request handler for Vercel
+export default function handler(req, res) {
+  return app(req, res)
+}
