@@ -77,6 +77,9 @@ app.get('/', (_req, res) => res.json({
   timestamp: new Date().toISOString(),
   initialized: inited 
 }))
+app.get('/api/cors-test', (req, res) => {
+  res.json({ cors: req.headers.origin });
+});
 app.use('/api/user', userRouter)
 app.use('/api/seller', sellerRouter)
 app.use('/api/product', productRouter)
