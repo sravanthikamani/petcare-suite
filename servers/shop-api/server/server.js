@@ -14,15 +14,23 @@ import { stripeWebhooks } from './controllers/orderController.js'
 
 const app = express()
 
-// --- one-time init
+// --- one-time init (with error handling)
 let inited = false
 async function init() {
   if (inited) return
-  await connectDB()
-  await connectCloudinary()
-  inited = true
+  try {
+    await connectDB()
+    await connectCloudinary()
+    inited = true
+    console.log('Database and Cloudinary connected successfully')
+  } catch (error) {
+    console.error('Initialization error:', error)
+    // Don't throw - let the request continue but log the error
+  }
 }
-await init()
+
+// Initialize immediately when module loads
+init()
 
 // --- CORS: allow only your frontend + local dev
 const allowList = [
@@ -62,13 +70,23 @@ app.use(express.json())
 app.use(cookieParser())
 
 // --- routes
-app.get('/', (_req, res) => res.send('API is Working'))
+app.get('/', (_req, res) => res.json({ 
+  message: 'API is Working', 
+  timestamp: new Date().toISOString(),
+  initialized: inited 
+}))
 app.use('/api/user', userRouter)
 app.use('/api/seller', sellerRouter)
 app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/address', addressRouter)
 app.use('/api/order', orderRouter)
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err)
+  res.status(500).json({ error: 'Internal server error' })
+})
 
 // --- local dev only
 if (process.env.VERCEL !== '1') {

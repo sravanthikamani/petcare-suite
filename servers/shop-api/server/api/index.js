@@ -1,7 +1,7 @@
-import app from '.../server.js'
-import { createServer } from 'http'
+import app from '../server.js'
 
-// Wrap Express in a request handler for Vercel
-export default function handler(req, res) {
+// Vercel serverless function handler
+export default async function handler(req, res) {
+  // The app initialization is already handled in server.js
   return app(req, res)
 }
