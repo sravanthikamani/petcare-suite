@@ -53,7 +53,9 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  // ...existing code...
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
+// ...existing code...
   exposedHeaders: ['Set-Cookie']
 }
 
@@ -84,8 +86,8 @@ app.use('/api/order', orderRouter)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err)
-  res.status(500).json({ error: 'Internal server error' })
+  console.error('Server error:', err.message,err.stack)
+  res.status(500).json({ error: err.message || 'Internal server error' })
 })
 
 // --- local dev only
