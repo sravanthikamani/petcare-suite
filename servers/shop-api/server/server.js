@@ -36,7 +36,11 @@ const corsOptions = {
   origin(origin, cb) {
     if (!origin) return cb(null, true) // server-to-server/CLI
     const ok = allowList.includes(origin) || /\.vercel\.app$/.test(origin) // previews
-    cb(ok ? null : new Error('Not allowed by CORS'), ok)
+    if (ok) {
+      cb(null, origin)   // ✅ return the origin string (not just true/false)
+    } else {
+      cb(new Error('Not allowed by CORS'))
+    }
   },
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
