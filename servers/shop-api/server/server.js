@@ -32,15 +32,20 @@ const allowList = [
   // 'https://petcare-suite-admin.vercel.app',
   // 'https://petcare-suite-frontend.vercel.app',
 ]
+// --- CORS config
 const corsOptions = {
   origin(origin, cb) {
-    if (!origin) return cb(null, true) // server-to-server/CLI
-       const allowList = [
+    // allow server-to-server calls or tools like Postman
+    if (!origin) return cb(null, true)
+
+    const allowList = [
       'http://localhost:5173',
       'https://petcare-suite-client.vercel.app',
     ]
+
+    // ✅ allow main client + any Vercel preview URL
     if (allowList.includes(origin) || /\.vercel\.app$/.test(origin)) {
-      cb(null, origin)   // ✅ must return origin string, not just true
+      cb(null, origin)   // must return the origin string
     } else {
       cb(new Error('Not allowed by CORS: ' + origin))
     }
@@ -49,6 +54,7 @@ const corsOptions = {
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
 }
+
 
 // --- Stripe webhook BEFORE parsers (raw body)
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
