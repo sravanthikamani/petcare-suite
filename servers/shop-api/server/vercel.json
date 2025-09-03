@@ -1,4 +1,15 @@
 {
   "functions": { "api/index.js": { "runtime": "nodejs20.x" } },
-  "routes": [{ "src": "/(.*)", "dest": "api/index.js" }]
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://petcare-suite-client.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
+    }
+  ]
 }
