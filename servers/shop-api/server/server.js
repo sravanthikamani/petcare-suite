@@ -98,4 +98,12 @@ if (process.env.VERCEL !== '1') {
   )
 }
 
+// filepath: c:\Users\ADMIN\Downloads\petcare-suite\servers\shop-api\server\server.js
+// ...existing code...
 export default app
+// For Vercel serverless
+export const config = {
+  api: {
+    bodyParser: false, // Needed for Stripe raw body
+  },
+}
