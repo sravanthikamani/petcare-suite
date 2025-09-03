@@ -35,11 +35,14 @@ const allowList = [
 const corsOptions = {
   origin(origin, cb) {
     if (!origin) return cb(null, true) // server-to-server/CLI
-    const ok = allowList.includes(origin) || /\.vercel\.app$/.test(origin) // previews
-    if (ok) {
-      cb(null, origin)   // ✅ return the origin string (not just true/false)
+       const allowList = [
+      'http://localhost:5173',
+      'https://petcare-suite-client.vercel.app',
+    ]
+    if (allowList.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      cb(null, origin)   // ✅ must return origin string, not just true
     } else {
-      cb(new Error('Not allowed by CORS'))
+      cb(new Error('Not allowed by CORS: ' + origin))
     }
   },
   credentials: true,
