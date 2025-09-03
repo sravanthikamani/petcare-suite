@@ -30,22 +30,29 @@ const allowList = [
   'https://petcare-suite-client.vercel.app',
 ]
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow REST tools or server-to-server
-      if (!origin) return callback(null, true)
-      if (allowList.includes(origin)) {
-        return callback(null, true)
-      }
-      return callback(new Error('Not allowed by CORS'))
-    },
-    credentials: true,
-  })
-)
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true)
+    
+    if (allowList.includes(origin)) {
+      return callback(null, true)
+    }
+    
+    console.log('CORS blocked origin:', origin)
+    return callback(new Error('Not allowed by CORS'))
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['Set-Cookie']
+}
 
-// preflight (OPTIONS)
-app.options('*', cors())
+app.use(cors(corsOptions))
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions))
 
 // --- Stripe webhook BEFORE JSON/body parser
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)

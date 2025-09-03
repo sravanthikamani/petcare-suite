@@ -1,15 +1,22 @@
 {
-  "functions": { "api/index.js": { "runtime": "nodejs20.x" } },
+  "functions": { 
+    "api/index.js": { "runtime": "nodejs20.x" } 
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "https://petcare-suite-client.vercel.app" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, PATCH, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, Cookie" },
+        { "key": "Access-Control-Allow-Credentials", "value": "true" }
+      ]
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/index.js",
-      "headers": {
-        "Access-Control-Allow-Origin": "https://petcare-suite-client.vercel.app",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true"
-      }
+      "dest": "api/index.js"
     }
   ]
 }
