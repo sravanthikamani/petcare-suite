@@ -14,7 +14,7 @@ import { stripeWebhooks } from './controllers/orderController.js'
 
 const app = express()
 
-// --- one-time init (ok for serverless cold starts)
+// --- one-time init
 let inited = false
 async function init() {
   if (inited) return
@@ -24,57 +24,38 @@ async function init() {
 }
 await init()
 
-// --- CORS: allow your frontends (NOT the API URL)
+// --- CORS: allow only your frontend + local dev
 const allowList = [
   'http://localhost:5173',
   'https://petcare-suite-client.vercel.app',
-  // add others if you have them:
-  // 'https://petcare-suite-admin.vercel.app',
-  // 'https://petcare-suite-frontend.vercel.app',
 ]
-// --- CORS config
-const corsOptions = {
-  origin(origin, cb) {
-    // allow server-to-server calls or tools like Postman
-    if (!origin) return cb(null, true)
 
-    const allowList = [
-      'http://localhost:5173',
-      'https://petcare-suite-client.vercel.app',
-    ]
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow REST tools or server-to-server
+      if (!origin) return callback(null, true)
+      if (allowList.includes(origin)) {
+        return callback(null, true)
+      }
+      return callback(new Error('Not allowed by CORS'))
+    },
+    credentials: true,
+  })
+)
 
-    // ✅ allow main client + any Vercel preview URL
-    if (allowList.includes(origin) || /\.vercel\.app$/.test(origin)) {
-      cb(null, origin)   // must return the origin string
-    } else {
-      cb(new Error('Not allowed by CORS: ' + origin))
-    }
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
-}
+// preflight (OPTIONS)
+app.options('*', cors())
 
-
-// --- Stripe webhook BEFORE parsers (raw body)
+// --- Stripe webhook BEFORE JSON/body parser
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
 
-// --- regular middleware AFTER webhook
-app.use(cors(corsOptions))
-app.options('*', cors(corsOptions))
+// --- middleware
 app.use(express.json())
 app.use(cookieParser())
 
 // --- routes
 app.get('/', (_req, res) => res.send('API is Working'))
-
-// ✅ CORS test route (add this here)
-app.get("/test-cors", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*")
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
-  res.json({ message: "CORS headers test" })
-})
 app.use('/api/user', userRouter)
 app.use('/api/seller', sellerRouter)
 app.use('/api/product', productRouter)
@@ -82,10 +63,12 @@ app.use('/api/cart', cartRouter)
 app.use('/api/address', addressRouter)
 app.use('/api/order', orderRouter)
 
-// --- local dev only; NEVER listen on Vercel
+// --- local dev only
 if (process.env.VERCEL !== '1') {
   const port = process.env.PORT || 5000
-  app.listen(port, () => console.log(`shop-api on http://localhost:${port}`))
+  app.listen(port, () =>
+    console.log(`shop-api running at http://localhost:${port}`)
+  )
 }
 
 export default app
